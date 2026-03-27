@@ -53,27 +53,23 @@ def get_drones():
     # use function translate() to covert the coodirnates to svg coordinates
     #=============================================================================================================================================
     
-    droneData1 = redis_server.hgetall('Mateusz')
-    droneData2 = redis_server.hgetall('Axel')
-    
-    print(droneData1.get('longitude'))
-    print(droneData1.get('latitude'))
-    print(droneData1.get('status'))
-    print(droneData1.get('id'))
-    
-    print(droneData2.get('longitude'))
-    print(droneData2.get('latitude'))
-    print(droneData2.get('status'))
-    print(droneData2.get('id'))
-    
-    
-    
-    Drone2_svg = translate((float(droneData2.get('longitude')), float(droneData2.get('latitude'))))
-    Drone1_svg = translate((float(droneData1.get('longitude')), float(droneData1.get('latitude'))))
-    
-    drone_dict = {'DRONE_1':{'longitude': Drone1_svg[0], 'latitude': Drone1_svg[1], 'status': droneData1.get('status')},
-                  'DRONE_2':{'longitude': Drone2_svg[0], 'latitude': Drone2_svg[1], 'status': droneData2.get('status')}}
-    
+    drone_dict = {}
+
+    for drone_id in redis_server.smembers("drones"):
+        drone_data = redis_server.hgetall(drone_id)
+        if not drone_data:
+            continue
+
+        svg_x, svg_y = translate((
+            float(drone_data["longitude"]),
+            float(drone_data["latitude"])
+        ))
+
+        drone_dict[drone_id] = {
+            "longitude": svg_x,
+            "latitude": svg_y,
+            "status": drone_data.get("status", "unknown")
+        }
 
     
     for key in redis_server.scan_iter(match=""):

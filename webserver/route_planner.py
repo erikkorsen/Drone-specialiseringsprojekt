@@ -1,6 +1,4 @@
-from cmath import pi
 from flask import Flask, request, render_template, jsonify
-from flask.globals import current_app 
 from geopy.geocoders import Nominatim
 from flask_cors import CORS
 import redis
@@ -22,7 +20,7 @@ region = ", Lund, Skåne, Sweden"
 # Example to send coords as request to the drone
 def send_request(drone_url, coords):
     with requests.Session() as session:
-        resp = session.post(drone_url, json=coords)
+        return session.post(drone_url, json=coords)
 
 @app.route('/planner', methods=['POST'])
 def route_planner():
@@ -43,39 +41,33 @@ def route_planner():
                   'to': (to_location.longitude, to_location.latitude),
                   }
         # ======================================================================
-        # Here you need to find a drone that is availale from the database. You need to check the status of the drone, there are two status, 'busy' or 'idle', only 'idle' drone is available and can be sent the coords to run delivery
-        # 1. Find avialable drone in the database (Hint: Check keys in RedisServer)
-        # if no drone is availble:
-        
-        drone1 = redis_server.hgetall('Mateusz')
-        drone2 = redis_server.hgetall('Axel')
-        
-        if drone1.get("status") == 'busy' and drone2.get("status") == 'busy' :
+        drone_ids = redis_server.smembers("drones")
+        available_drone = None
+
+        for drone_id in drone_ids:
+            drone_data = redis_server.hgetall(drone_id)
+            if drone_data.get("status") == "idle":
+                available_drone = drone_data
+                break
+
+        if available_drone is None:
             message = 'No available drone, try later'
-            
-        elif drone1.get("status") == 'idle' :
-            droneIP1 = drone1.get("ip")
-        
-            # 2. Get the IP of available drone, 
-            DRONE_URL = 'http://' + droneIP1 +':5000'
-            # 3. Send coords to the URL of available drone
-            
-            send_request(DRONE_URL, coords)
-            
-            message = 'Got address and sent request to the drone'
         else:
-            droneIP2 = drone2.get("ip")
-        
-            # 2. Get the IP of available drone, 
-            DRONE_URL = 'http://' + droneIP2 +':5000'
-            # 3. Send coords to the URL of available drone
-            
-            send_request(DRONE_URL, coords)
-            
-            message = 'Got address and sent request to the drone'
+            drone_ip = available_drone.get("ip")
+
+            if not drone_ip:
+                message = 'Available drone has no IP registered'
+            else:
+                DRONE_URL = 'http://' + drone_ip + ':5003'
+                response = send_request(DRONE_URL, coords)
+
+                if response.ok:
+                    message = 'Got address and sent request to the drone'
+                else:
+                    message = 'Drone manager could not accept the request'
     return message
         # ======================================================================
 
 
 if __name__ == "__main__":
-    app.run(debug=True, host='0.0.0.0', port='5002')
+    app.run(debug=True, host='0.0.0.0', port=5004)

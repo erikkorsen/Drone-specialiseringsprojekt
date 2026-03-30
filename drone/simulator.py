@@ -1,9 +1,10 @@
 import math
 import requests
 import argparse
+import time
 
 def getMovement(src, dst):
-    speed = 0.00001
+    speed = 0.00006
     dst_x, dst_y = dst
     x, y = src
     direction = math.sqrt((dst_x - x)**2 + (dst_y - y)**2)
@@ -19,8 +20,8 @@ def moveDrone(src, d_long, d_la):
 
 def run(id, current_coords, from_coords, to_coords, SERVER_URL):
     drone_coords = current_coords
-    d_long, d_la =  getMovement(drone_coords, from_coords)
     while ((from_coords[0] - drone_coords[0])**2 + (from_coords[1] - drone_coords[1])**2)*10**6 > 0.0002:
+        d_long, d_la = getMovement(drone_coords, from_coords)
         drone_coords = moveDrone(drone_coords, d_long, d_la)
         with requests.Session() as session:
             drone_info = {'id': id,
@@ -29,8 +30,9 @@ def run(id, current_coords, from_coords, to_coords, SERVER_URL):
                           'status': 'busy'
                         }
             resp = session.post(SERVER_URL, json=drone_info)
-    d_long, d_la =  getMovement(drone_coords, to_coords)
+        time.sleep(0.01)
     while ((to_coords[0] - drone_coords[0])**2 + (to_coords[1] - drone_coords[1])**2)*10**6 > 0.0002:
+        d_long, d_la = getMovement(drone_coords, to_coords)
         drone_coords = moveDrone(drone_coords, d_long, d_la)
         with requests.Session() as session:
             drone_info = {'id': id,
@@ -39,6 +41,7 @@ def run(id, current_coords, from_coords, to_coords, SERVER_URL):
                           'status': 'busy'
                         }
             resp = session.post(SERVER_URL, json=drone_info)
+        time.sleep(0.01)
     with requests.Session() as session:
             drone_info = {'id': id,
                           'longitude': drone_coords[0],

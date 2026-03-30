@@ -73,9 +73,11 @@ def get_drones():
 
     
     for key in redis_server.scan_iter(match=""):
-        key_type = redis_server.type(key)
+        key_type = redis_server.type(key) #används detta?
     
     return jsonify(drone_dict)
 
 if __name__ == "__main__":
-    app.run(debug=True, host='0.0.0.0', port='5000')
+    #app.run(debug=True, host='0.0.0.0', port='5000')
+    app.run(debug=True, host='0.0.0.0', port=5002)
+

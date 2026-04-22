@@ -17,7 +17,7 @@ redis_server = redis.Redis(host="localhost", port=6379, decode_responses=True)
 geolocator = Nominatim(user_agent="my_request")
 region = ", Lund, Skåne, Sweden"
 
-# Example to send coords as request to the drone
+
 def send_request(drone_url, coords):
     with requests.Session() as session:
         return session.post(drone_url, json=coords)
@@ -36,7 +36,6 @@ def route_planner():
         message = 'Destination address not found, please input a correct address'
         return message
     else:
-        # If the coodinates are found by Nominatim, the coords will need to be sent the a drone that is available
         coords = {'from': (from_location.longitude, from_location.latitude),
                   'to': (to_location.longitude, to_location.latitude),
                   }

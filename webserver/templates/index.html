@@ -3,8 +3,8 @@
 <head>
   <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
   <meta charset="utf-8">
-  <title>Drone in Lund</title>
-  <script type="text/javascript" src="https://d3js.org/d3.v3.min.js"></script>
+  <title>LastMile BETA</title>
+  <!--script type="text/javascript" src="https://d3js.org/d3.v3.min.js"></script>-->
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>  
   <script type="text/javascript">
     function Submit() {
@@ -28,16 +28,23 @@
     }
   </script>
   <script type="text/javascript">
+
     function LoadDrone(droneID, x, y, status) {
       var doc = document.getElementById("map");
       $( doc ).ready(function() {
       var doc_svg = doc.getSVGDocument();
       var svg = doc_svg.getElementById("map-svg");
       var circleNode = svg.getElementById(droneID);
+
       var color = 'red';
+
       if (status == 'idle'){
-        color = 'green'
+        color = 'green';
       }
+      else if (status == 'picking_up'){
+        color = 'orange';
+      }
+
       if(circleNode == null){
         circleNode = doc_svg.createElementNS("http://www.w3.org/2000/svg", "circle");
         circleNode.setAttributeNS(null, 'cx', x);
@@ -58,8 +65,8 @@
 </head>
 
 <body>
-  <p>Current Position: </p>
-  <div id="txt"></div>
+  <!--p>Current Position: </p> -->
+  <!--div id="txt"></div> -->
   <form action="javascript:Submit()">
     <label for="fname">From address:</label><br>
     <input type="text" id="faddr" name="faddr"><br>
@@ -69,7 +76,7 @@
   </form>
   <object id="map" data="static/images/lund-map.svg" type="image/svg+xml" ></object>
   <script>
-    var set_delay = 0,
+    var set_delay = 10,
     callout = function () {
     $.ajax({
       url: 'http://127.0.0.1:5002/get_drones'

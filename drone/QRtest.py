@@ -1,6 +1,7 @@
 import cv2
 import webbrowser
 import qrcode
+import time
 
 
 def scanQR():
@@ -9,7 +10,13 @@ def scanQR():
 
     detector = cv2.QRCodeDetector()
 
-    while True:
+    startTime = time.time()
+    currentTime = time.time()
+
+    while currentTime - startTime < 30:
+
+        currentTime = time.time()
+
         _, img = cap.read()
         
         data, bbox, _ = detector.detectAndDecode(img)
@@ -18,9 +25,13 @@ def scanQR():
             a = data
             break
 
+        else:
+            a = "fail"
+
         if cv2.waitKey(1) == ord("q"):
             break
     cap.release()
+
     return (a == Key)
 
 def generateQRObject(data):
@@ -31,8 +42,3 @@ def generateQRObject(data):
 def generateImage(QRCode):
     image = QRCode.make_image(fill_color = "Black", back_color = "White")
     return image
-
-if scanQR():
-    print("Code works!!!!")
-else:
-    print("Fail")

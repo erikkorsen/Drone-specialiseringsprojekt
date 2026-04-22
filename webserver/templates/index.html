@@ -45,6 +45,10 @@
         color = 'orange';
       }
 
+      else if (status == 'delivers'){
+        color = 'blue';
+      }
+
       if(circleNode == null){
         circleNode = doc_svg.createElementNS("http://www.w3.org/2000/svg", "circle");
         circleNode.setAttributeNS(null, 'cx', x);

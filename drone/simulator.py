@@ -1,6 +1,7 @@
 import math
 import requests
 import time
+import QRtest
 
 def getMovement(src, dst):
     speed = 0.00008
@@ -59,6 +60,20 @@ def run(id, current_coords, from_coords, to_coords, SERVER_URL):
                     }
         session.post(SERVER_URL, json=drone_info)
         time.sleep(0.02)
+
+
+    drone_info = {'id': id,
+                      'longitude': drone_coords[0],
+                      'latitude': drone_coords[1],
+                      'status': 'delivers'
+                    }
+    
+    session.post(SERVER_URL, json=drone_info)
+
+    if QRtest.scanQR():
+        print("Scan ok")
+    else:
+        print("Scan failed")
 
     while ((home_coords[0] - drone_coords[0])**2 + (home_coords[1] - drone_coords[1])**2)*10**6 > 0.0002:
         d_long, d_la = getMovement(drone_coords, home_coords)

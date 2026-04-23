@@ -106,8 +106,8 @@
       row.innerHTML = `
         <td>${droneID}</td>
         <td>${drone.status}</td>
-        <td>${drone.longitude}</td>
-        <td>${drone.latitude}</td>
+        <td>${Number(drone.longitude).toFixed(1)}, ${Number(drone.latitude).toFixed(1)} </td>
+        <td>${Number(drone.battery).toFixed(0)}</td>
       `;
 
       tbody.appendChild(row);
@@ -134,8 +134,8 @@
         <tr>
           <th>ID</th>
           <th>Status</th>
-          <th>X</th>
-          <th>Y</th>
+          <th>Coordinates</th>
+          <th>Battery</th>
         </tr>
       </thead>
       <tbody>

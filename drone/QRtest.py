@@ -42,3 +42,8 @@ def generateQRObject(data):
 def generateImage(QRCode):
     image = QRCode.make_image(fill_color = "Black", back_color = "White")
     return image
+
+if scanQR():
+    print("succesful")
+else:
+    print("fail")

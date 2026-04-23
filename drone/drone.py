@@ -5,6 +5,7 @@ class Drone:
         self.latitude = latitude
         self.status = 'idle'
         self.current_mission = None
+        self.battery = 100
 
     def to_dict(self):
         return {
@@ -12,6 +13,7 @@ class Drone:
             'longitude': self.longitude,
             'latitude': self.latitude,
             'status': self.status,
+            'battery': self.battery
         }
 
     def assign_mission(self, from_coords, to_coords):

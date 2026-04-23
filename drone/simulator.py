@@ -25,19 +25,31 @@ def moveDrone(src, d_long, d_la):
     y = y + d_la        
     return (x, y)
 
-def run(id, current_coords, from_coords, to_coords, SERVER_URL):
+def getDistance(a, b):
+    return math.sqrt((b[0] - a[0])**2 + (b[1] - a[1])**2)
+
+
+def run(id, current_coords, from_coords, to_coords, SERVER_URL, drone):
 
     home_coords = current_coords
     drone_coords = current_coords
     session = requests.Session()
 
+    def drain_battery():
+        drone.battery -= 0.05
+        if drone.battery < 0:
+            drone.battery = 0
+
     while ((from_coords[0] - drone_coords[0])**2 + (from_coords[1] - drone_coords[1])**2)*10**6 > 0.0002:
         d_long, d_la = getMovement(drone_coords, from_coords)
         drone_coords = moveDrone(drone_coords, d_long, d_la)
+
+        drain_battery()
         drone_info = {'id': id,
                       'longitude': drone_coords[0],
                       'latitude': drone_coords[1],
-                      'status': 'busy'
+                      'status': 'busy',
+                      'battery': drone.battery
                     }
         session.post(SERVER_URL, json=drone_info)
         time.sleep(0.02)
@@ -45,7 +57,8 @@ def run(id, current_coords, from_coords, to_coords, SERVER_URL):
     drone_info = {'id': id,
                   'longitude': drone_coords[0],
                   'latitude': drone_coords[1],
-                  'status': 'picking_up' 
+                  'status': 'picking_up',
+                  'battery': drone.battery
                 }
     session.post(SERVER_URL, json=drone_info)
     time.sleep(3) # upphämtningsprocess - delay
@@ -53,10 +66,14 @@ def run(id, current_coords, from_coords, to_coords, SERVER_URL):
     while ((to_coords[0] - drone_coords[0])**2 + (to_coords[1] - drone_coords[1])**2)*10**6 > 0.0002:
         d_long, d_la = getMovement(drone_coords, to_coords)
         drone_coords = moveDrone(drone_coords, d_long, d_la)
+        
+        drain_battery()
+
         drone_info = {'id': id,
                       'longitude': drone_coords[0],
                       'latitude': drone_coords[1],
-                      'status': 'busy'
+                      'status': 'busy',
+                      'battery': drone.battery
                     }
         session.post(SERVER_URL, json=drone_info)
         time.sleep(0.02)
@@ -65,7 +82,8 @@ def run(id, current_coords, from_coords, to_coords, SERVER_URL):
     drone_info = {'id': id,
                       'longitude': drone_coords[0],
                       'latitude': drone_coords[1],
-                      'status': 'delivers'
+                      'status': 'delivers',
+                      'battery': drone.battery
                     }
     
     session.post(SERVER_URL, json=drone_info)
@@ -78,10 +96,14 @@ def run(id, current_coords, from_coords, to_coords, SERVER_URL):
     while ((home_coords[0] - drone_coords[0])**2 + (home_coords[1] - drone_coords[1])**2)*10**6 > 0.0002:
         d_long, d_la = getMovement(drone_coords, home_coords)
         drone_coords = moveDrone(drone_coords, d_long, d_la)
+
+        drain_battery()
+
         drone_info = {'id': id,
                       'longitude': drone_coords[0],
                       'latitude': drone_coords[1],
-                      'status': 'busy'
+                      'status': 'busy',
+                      'battery': drone.battery
                     }
         session.post(SERVER_URL, json=drone_info)
         time.sleep(0.02)
@@ -89,7 +111,8 @@ def run(id, current_coords, from_coords, to_coords, SERVER_URL):
     drone_info = {'id': id,
                   'longitude': drone_coords[0],
                   'latitude': drone_coords[1],
-                  'status': 'idle'
+                  'status': 'idle',
+                  'battery': drone.battery
                  }
     
     session.post(SERVER_URL, json=drone_info)

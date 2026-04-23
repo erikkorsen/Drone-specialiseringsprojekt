@@ -20,6 +20,7 @@ def drone():
     drone_longitude = drone['longitude']
     drone_latitude = drone['latitude']
     drone_status = drone['status']
+    drone_battery = drone['battery']
     
     key = droneID
     
@@ -30,6 +31,7 @@ def drone():
         "latitude": drone_latitude,
         "status": drone_status,
         "ip": droneIP,
+        "battery": drone_battery
         })
     
     #indexera över drönar-IDn så vi kan lista alla drönare

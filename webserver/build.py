@@ -68,7 +68,8 @@ def get_drones():
         drone_dict[drone_id] = {
             "longitude": svg_x,
             "latitude": svg_y,
-            "status": drone_data.get("status", "unknown")
+            "status": drone_data.get("status", "unknown"),
+            'battery': float(drone_data.get('battery', 100))
         }
 
     

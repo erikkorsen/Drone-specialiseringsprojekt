@@ -3,6 +3,8 @@ from flask_cors import CORS
 import requests
 import threading
 import simulator
+from simulator import getDistance
+import time
 
 from drone import Drone  # importera klassen
 
@@ -13,6 +15,8 @@ app.secret_key = 'secret_key'
 
 SERVER = "http://127.0.0.1:5001/drone" #ändra till server-pis IP när vi kör på pi
 #SERVER = "http://<SERVER_PI_IP>:5001/drone"
+
+home_coords = (13.210056, 55.711054)
 
 
 def create_drones(count=10):
@@ -36,11 +40,25 @@ def sync_drone(drone):
         session.post(SERVER, json=drone.to_dict())
 
 
-def get_idle_drone():
-    for drone in DRONES.values():
-        if drone.status == "idle":
-            return drone
-    return None
+def get_idle_drone(from_coords, to_coords):     
+        for drone in DRONES.values():
+            if drone.status == "idle":
+                return drone
+        return None
+
+        ##current_coords = (drone.longitude, drone.latitude)
+
+        ##dist_pickup = getDistance(current_coords, from_coords)
+        ##dist_delivery = getDistance(from_coords, to_coords)
+        ##dist_home = getDistance(to_coords, home_coords)
+
+        ##total_dist = dist_pickup + dist_delivery + dist_home
+
+        required_battery = total_dist * 10000
+
+        ##if drone.battery >= required_battery:
+           ## return drone
+
 
 
 def run_mission(drone, from_coords, to_coords):
@@ -52,10 +70,21 @@ def run_mission(drone, from_coords, to_coords):
         tuple(from_coords),
         tuple(to_coords),
         SERVER,
+        drone 
     )
 
     drone.complete_mission(final_longitude, final_latitude)
     sync_drone(drone)
+
+    if drone.battery <= 30:
+       drone.status = 'charging'
+       sync_drone(drone)
+
+       time.sleep(5)
+
+       drone.battery = 100
+       drone.status = 'idle'
+       sync_drone(drone)
 
 
 
@@ -67,7 +96,7 @@ def handle_mission():
     from_coords = data["from"]
     to_coords = data["to"]
 
-    drone = get_idle_drone()
+    drone = get_idle_drone(from_coords, to_coords)
 
     if drone is None:
         return {"error": "No idle drones available"}, 409

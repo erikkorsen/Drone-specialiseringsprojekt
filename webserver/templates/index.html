@@ -4,6 +4,30 @@
   <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
   <meta charset="utf-8">
   <title>LastMile BETA</title>
+  <style>
+    .container {
+      display: flex;
+      align-items: flex start;
+      gap: 20px;
+      margin-top: 20px;
+    }
+
+    #map {
+      width: 1200px;
+      height: 1000px;
+    }
+
+    table {
+      border-collapse: collapse;
+      min-width: 300px;
+    }
+
+    th, td {
+      border: 1px solid black;
+      padding: 6px 10px;
+      text-align: left;
+    }
+  </style>
   <!--script type="text/javascript" src="https://d3js.org/d3.v3.min.js"></script>-->
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>  
   <script type="text/javascript">
@@ -66,6 +90,30 @@
   )
 }
   </script> 
+
+  <script>
+  function updateTable(server_response) {
+    const tbody = document.querySelector("#droneTable tbody");
+    tbody.innerHTML = "";
+
+    const drones = Object.keys(server_response);
+
+    drones.forEach(droneID => {
+      const drone = server_response[droneID];
+
+      const row = document.createElement("tr");
+
+      row.innerHTML = `
+        <td>${droneID}</td>
+        <td>${drone.status}</td>
+        <td>${drone.longitude}</td>
+        <td>${drone.latitude}</td>
+      `;
+
+      tbody.appendChild(row);
+    });
+  }
+  </script>
 </head>
 
 <body>
@@ -78,7 +126,22 @@
     <input type="text" id="taddr" name="taddr"><br><br>
     <input type="submit" value="Search addresses">
   </form>
-  <object id="map" data="static/images/lund-map.svg" type="image/svg+xml" ></object>
+  <div class="conatainer">
+    <object id="map" data="static/images/lund-map.svg" type="image/svg+xml" ></object>
+
+    <table id="droneTable">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Status</th>
+          <th>X</th>
+          <th>Y</th>
+        </tr>
+      </thead>
+      <tbody>
+      </tbody>
+    </table>
+  </div>
   <script>
     var set_delay = 10,
     callout = function () {
@@ -93,6 +156,8 @@
         var status = server_response[droneID].status
         LoadDrone(droneID, x, y, status)
       }
+
+      updateTable(server_response);
     })
     .always(function (server_response) {
         setTimeout(callout, set_delay);

@@ -1,5 +1,5 @@
 class Drone:
-    def __init__(self, drone_id, longitude=13.210056, latitude=55.711054):
+    def __init__(self, drone_id, longitude, latitude):
         self.id = drone_id
         self.longitude = longitude
         self.latitude = latitude

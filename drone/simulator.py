@@ -29,9 +29,8 @@ def getDistance(a, b):
     return math.sqrt((b[0] - a[0])**2 + (b[1] - a[1])**2)
 
 
-def run(id, current_coords, from_coords, to_coords, SERVER_URL, drone):
+def run(id, current_coords, from_coords, to_coords, home_coords, SERVER_URL, drone):
 
-    home_coords = current_coords
     drone_coords = current_coords
     session = requests.Session()
 
@@ -107,7 +106,7 @@ def run(id, current_coords, from_coords, to_coords, SERVER_URL, drone):
                     }
         session.post(SERVER_URL, json=drone_info)
         time.sleep(0.02)
-    
+
     drone_info = {'id': id,
                   'longitude': drone_coords[0],
                   'latitude': drone_coords[1],

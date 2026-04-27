@@ -17,17 +17,25 @@ SERVER = "http://127.0.0.1:5001/drone" #ändra till server-pis IP när vi kör p
 #SERVER = "http://<SERVER_PI_IP>:5001/drone"
 
 home_coords = (13.210056, 55.711054)
+home_coords_2 = (13.181170, 55.718828)
+home_coords_3 = (13.192135, 55.695985)
 
+homes = [home_coords, home_coords_2, home_coords_3]
 
 def create_drones(count=10):
-    return {
-        f"drone_{i}": Drone(f"drone_{i}")
-        for i in range(1, count + 1)
-    }
 
+    drones = {}
+
+    for i in range(1, count + 1):
+
+        drone_id = f"drone_{i}"
+        current_coords = homes[i%3]
+
+        drones[drone_id] = Drone(drone_id, current_coords[0], current_coords[1]) 
+    
+    return drones
 
 DRONES = create_drones(10)
-
 
 def register_drones():
     with requests.Session() as session:
@@ -77,14 +85,32 @@ def get_idle_drone(from_coords, to_coords):
         return selected_drone
 
 
+def get_nearest_home(to_coords):
+
+    nearest_home = None
+    home_dist = float("inf")
+
+    for home in homes:
+
+        dist = getDistance(to_coords, home)
+
+        if dist < home_dist:
+            nearest_home = home
+            home_dist = dist
+
+    return nearest_home
+
+
 def run_mission(drone, from_coords, to_coords):
     current_coords = (drone.longitude, drone.latitude)
+    home_coords = get_nearest_home(to_coords)
 
     final_longitude, final_latitude = simulator.run(
         drone.id,
         current_coords,
         tuple(from_coords),
         tuple(to_coords),
+        home_coords,
         SERVER,
         drone 
     )

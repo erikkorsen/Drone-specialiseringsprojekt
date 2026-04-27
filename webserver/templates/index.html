@@ -5,27 +5,53 @@
   <meta charset="utf-8">
   <title>LastMile BETA</title>
   <style>
+    body {
+      margin: 0;
+      padding: 10px;
+      font-family: Arial, sans-serif;
+    }
     .container {
       display: flex;
-      align-items: flex start;
-      gap: 20px;
-      margin-top: 20px;
+      align-items: flex-start;
+      gap: 0px;
+      justify-content: flex-start;
     }
 
     #map {
-      width: 1200px;
-      height: 1000px;
+      width: 1000px;
+      height: 750px;
+      display: block;
+      margin-top: 0px;
+    }
+
+    #droneTable {
+      width: 330px;
+      font-size: 14px;
+      border-collapse: collapse;
+      margin-top: 100px;
     }
 
     table {
       border-collapse: collapse;
       min-width: 300px;
+      margin-top: 100px;
     }
 
     th, td {
       border: 1px solid black;
-      padding: 6px 10px;
+      padding: 3px 6px;
       text-align: left;
+    }
+    .header {
+      width: 100%;
+      padding: 15px 20px;
+      background-color: #111;
+      color: white;
+    }
+
+    .header h1 {
+      margin: 0;
+      font-size: 28px;
     }
   </style>
   <!--script type="text/javascript" src="https://d3js.org/d3.v3.min.js"></script>-->
@@ -96,7 +122,9 @@
     const tbody = document.querySelector("#droneTable tbody");
     tbody.innerHTML = "";
 
-    const drones = Object.keys(server_response);
+    const drones = Object.keys(server_response).sort((a, b) => {
+      return parseInt(a.split("_")[1]) - parseInt(b.split("_")[1]);
+    });
 
     drones.forEach(droneID => {
       const drone = server_response[droneID];
@@ -117,16 +145,25 @@
 </head>
 
 <body>
+  <div class="header">
+    <h1>LastMile</h1>
+  </div>
   <!--p>Current Position: </p> -->
   <!--div id="txt"></div> -->
-  <form action="javascript:Submit()">
-    <label for="fname">From address:</label><br>
-    <input type="text" id="faddr" name="faddr"><br>
-    <label for="lname">To address:</label><br>
-    <input type="text" id="taddr" name="taddr"><br><br>
-    <input type="submit" value="Search addresses">
-  </form>
-  <div class="conatainer">
+  <div class="container">
+    <form action="javascript:Submit()" style="margin-top: 80px;">
+    <label for="faddr">Pickup location:</label><br>
+    <select id="faddr" name="faddr">
+      <option value="ICA Nära Söderlivs">ICA Nära Söderlivs</option>
+      <option value="ICA Malmborgs">ICA Malmborgs</option>
+      <option value="Coop Mårtenstorget">Coop Mårtenstorget</option>
+      <option value="ICA Maxi Stormarknad">ICA Maxi Stormarknad</option>
+      </select>
+      <br>
+      <label for="lname">To address:</label><br>
+      <input type="text" id="taddr" name="taddr"><br><br>
+      <input type="submit" value="Search addresses">
+    </form>
     <object id="map" data="static/images/lund-map.svg" type="image/svg+xml" ></object>
 
     <table id="droneTable">

@@ -36,7 +36,7 @@ def run(id, current_coords, from_coords, to_coords, SERVER_URL, drone):
     session = requests.Session()
 
     def drain_battery():
-        drone.battery -= 0.05
+        drone.battery -= 0.025
         if drone.battery < 0:
             drone.battery = 0
 

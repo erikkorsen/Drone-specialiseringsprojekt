@@ -40,25 +40,41 @@ def sync_drone(drone):
         session.post(SERVER, json=drone.to_dict())
 
 
-def get_idle_drone(from_coords, to_coords):     
+
+def has_required_battery(drone, from_coords, to_coords):
+
+    current_coords = (drone.longitude, drone.latitude)
+    dist_pickup = getDistance(current_coords, from_coords)
+    dist_delivery = getDistance(from_coords, to_coords)
+    dist_home = getDistance(to_coords, home_coords)
+
+    total_dist = dist_pickup + dist_delivery + dist_home
+
+    battery_usage = total_dist * 312.5
+
+    return drone.battery >= battery_usage
+    
+
+
+def get_idle_drone(from_coords, to_coords): 
+        
+        selected_drone = None
+        selected_dist_pickup = float("inf")
+            
         for drone in DRONES.values():
+
             if drone.status == "idle":
-                return drone
-        return None
+                if has_required_battery(drone, from_coords, to_coords):
+                    current_coords = (drone.longitude, drone.latitude)
+                    dist_pickup = getDistance(current_coords, from_coords)
 
-        ##current_coords = (drone.longitude, drone.latitude)
-
-        ##dist_pickup = getDistance(current_coords, from_coords)
-        ##dist_delivery = getDistance(from_coords, to_coords)
-        ##dist_home = getDistance(to_coords, home_coords)
-
-        ##total_dist = dist_pickup + dist_delivery + dist_home
-
-        required_battery = total_dist * 10000
-
-        ##if drone.battery >= required_battery:
-           ## return drone
-
+                    if dist_pickup < selected_dist_pickup:
+                        selected_drone = drone
+                        selected_coords = (selected_drone.longitude, selected_drone.latitude)
+                        selected_dist_pickup = getDistance(selected_coords, from_coords)
+                    
+                    
+        return selected_drone
 
 
 def run_mission(drone, from_coords, to_coords):

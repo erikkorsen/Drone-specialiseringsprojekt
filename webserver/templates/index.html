@@ -64,8 +64,8 @@
       var from_addr = document.getElementById('faddr').value;
       var to_addr = document.getElementById('taddr').value;
       var data = {
-        "faddr": from_addr,
-        "taddr": to_addr
+        "from": from_addr,
+        "to": to_addr
       };
 
       var xhttp = new XMLHttpRequest();
@@ -75,7 +75,7 @@
         }
       };
 
-      xhttp.open("POST", "http://127.0.0.1:5004/planner", true);
+      xhttp.open("POST", "http://127.0.0.1:5003/planner", true);
       xhttp.setRequestHeader("Content-Type", "application/json");
       xhttp.send(JSON.stringify(data));
     }
@@ -148,6 +148,20 @@
 </head>
 
 <body>
+
+  <a href="/customer"
+     style="
+       position:absolute;
+       top:20px;
+       right:20px;
+       color:white;
+       text-decoration:none;
+       font-weight:bold;
+       z-index:1000;
+     ">
+     Customer View
+  </a>
+
   <div class="header">
     <h1>LastMile</h1>
   </div>

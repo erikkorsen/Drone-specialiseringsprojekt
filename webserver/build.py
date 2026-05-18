@@ -37,9 +37,13 @@ def translate(coords_osm):
 
     return x_svg, y_svg
 
+@app.route("/customer")
+def admin():
+    return render_template("index.html")
+
 @app.route('/', methods=['GET'])
 def map():
-    return render_template('index.html')
+    return render_template('admin.html')
 
 @app.route('/get_drones', methods=['GET'])
 def get_drones():

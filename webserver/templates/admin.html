@@ -64,8 +64,8 @@
       var from_addr = document.getElementById('faddr').value;
       var to_addr = document.getElementById('taddr').value;
       var data = {
-        "from": from_addr,
-        "to": to_addr
+        "faddr": from_addr,
+        "taddr": to_addr
       };
 
       var xhttp = new XMLHttpRequest();
@@ -75,7 +75,7 @@
         }
       };
 
-      xhttp.open("POST", "http://127.0.0.1:5003/planner", true);
+      xhttp.open("POST", "http://127.0.0.1:5004/planner", true);
       xhttp.setRequestHeader("Content-Type", "application/json");
       xhttp.send(JSON.stringify(data));
     }

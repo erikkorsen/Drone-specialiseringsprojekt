@@ -1,225 +1,299 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
   <meta charset="utf-8">
-  <title>LastMile BETA</title>
+  <title>LastMile Delivery</title>
+
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+
   <style>
+
     body {
       margin: 0;
-      padding: 0;
       font-family: Arial, sans-serif;
-      overflow-x: hidden;
+      background-color: #f4f4f4;
     }
+
     .header {
-      width: 100%;
-      padding: 15px 20px;
       background-color: #111;
       color: white;
+      padding: 15px 20px;
+    }
+
+    .header h1 {
+      margin: 0;
+    }
+
+    .container {
+      display: flex;
+      gap: 30px;
+      padding: 30px;
+      align-items: flex-start;
+    }
+
+    .order-panel {
+      width: 300px;
+      background: white;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0px 0px 10px rgba(0,0,0,0.1);
+    }
+
+    .order-panel input,
+    .order-panel select,
+    .order-panel button {
+
+      width: 100%;
+      padding: 10px;
+      margin-top: 10px;
       box-sizing: border-box;
     }
-    .container {
-      display: grid;
-      grid-template-columns: 160px 1fr 280px;
-      align-items: start;
-      gap: 15px;
-      padding: 40px 20px;
-      box-sizing: border-box;
-      width: 100vw;
+
+    .order-panel button {
+      background-color: #111;
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
+
+    .order-panel button:hover {
+      background-color: #333;
     }
 
     #map {
-      width: 100%;
-      max-height: calc(100vh - 100px);
-      aspect-ratio: 4 / 3;
-      display: block;
+      width: 1000px;
+      height: 750px;
+      background: white;
+      border-radius: 10px;
+      box-shadow: 0px 0px 10px rgba(0,0,0,0.1);
     }
 
-    #droneTable {
-      width: 100%;
-      font-size: 14px;
-      border-collapse: collapse;
-      margin-top: 0;
+    .status-box {
+      margin-top: 20px;
+      padding: 10px;
+      background: #eee;
+      border-radius: 5px;
     }
 
-    table {
-      border-collapse: collapse;
-      margin-top: 0;
-    }
-
-    th, td {
-      border: 1px solid black;
-      padding: 3px 6px;
-      text-align: left;
-    }
-    .header h1 {
-      margin: 0;
-      font-size: 28px;
-    }
   </style>
-  <!--script type="text/javascript" src="https://d3js.org/d3.v3.min.js"></script>-->
-  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>  
-  <script type="text/javascript">
-    function Submit() {
-      var from_addr = document.getElementById('faddr').value;
-      var to_addr = document.getElementById('taddr').value;
-      var data = {
-        "from": from_addr,
-        "to": to_addr
-      };
-
-      var xhttp = new XMLHttpRequest();
-      xhttp.onreadystatechange = function() {
-        if (this.readyState == 4) {
-          alert("Status: " + this.status + "\nResponse: " + this.responseText);
-        }
-      };
-
-      xhttp.open("POST", "http://127.0.0.1:5003/planner", true);
-      xhttp.setRequestHeader("Content-Type", "application/json");
-      xhttp.send(JSON.stringify(data));
-    }
-  </script>
-  <script type="text/javascript">
-
-    function LoadDrone(droneID, x, y, status) {
-      var doc = document.getElementById("map");
-      $( doc ).ready(function() {
-      var doc_svg = doc.getSVGDocument();
-      var svg = doc_svg.getElementById("map-svg");
-      var circleNode = svg.getElementById(droneID);
-
-      var color = 'red';
-
-      if (status == 'idle'){
-        color = 'green';
-      }
-      else if (status == 'picking_up'){
-        color = 'orange';
-      }
-
-      else if (status == 'delivers'){
-        color = 'blue';
-      }
-
-      if(circleNode == null){
-        circleNode = doc_svg.createElementNS("http://www.w3.org/2000/svg", "circle");
-        circleNode.setAttributeNS(null, 'cx', x);
-        circleNode.setAttributeNS(null, 'cy', y);
-        circleNode.setAttributeNS(null, 'r', '5');
-        circleNode.setAttributeNS(null, 'fill', color);
-        circleNode.setAttributeNS(null, 'id', droneID);
-        svg.appendChild(circleNode);  }
-      else{
-        circleNode.setAttributeNS(null, 'cx', x);
-        circleNode.setAttributeNS(null, 'cy', y);
-        circleNode.setAttributeNS(null, 'fill', color);
-      }
-    }
-  )
-}
-  </script> 
-
-  <script>
-  function updateTable(server_response) {
-    const tbody = document.querySelector("#droneTable tbody");
-    tbody.innerHTML = "";
-
-    const drones = Object.keys(server_response).sort((a, b) => {
-      return parseInt(a.split("_")[1]) - parseInt(b.split("_")[1]);
-    });
-
-    drones.forEach(droneID => {
-      const drone = server_response[droneID];
-
-      const row = document.createElement("tr");
-
-      row.innerHTML = `
-        <td>${droneID}</td>
-        <td>${drone.status}</td>
-        <td>${Number(drone.longitude).toFixed(1)}, ${Number(drone.latitude).toFixed(1)} </td>
-        <td>${Number(drone.battery).toFixed(0)}</td>
-      `;
-
-      tbody.appendChild(row);
-    });
-  }
-  </script>
 </head>
 
 <body>
 
-  <a href="/customer"
-     style="
-       position:absolute;
-       top:20px;
-       right:20px;
-       color:white;
-       text-decoration:none;
-       font-weight:bold;
-       z-index:1000;
-     ">
-     Customer View
-  </a>
+<div class="header">
+  <h1>LastMile Delivery</h1>
+</div>
 
-  <div class="header">
-    <h1>LastMile</h1>
+<div class="container">
+
+  <!-- CUSTOMER ORDER PANEL -->
+
+  <div class="order-panel">
+
+    <h2>Place Delivery</h2>
+
+    <label>Pickup Location</label>
+
+    <select id="faddr">
+
+      <option value="ICA Nära Söderlivs">
+        ICA Nära Söderlivs
+      </option>
+
+      <option value="ICA Malmborgs">
+        ICA Malmborgs
+      </option>
+
+      <option value="Coop Mårtenstorget">
+        Coop Mårtenstorget
+      </option>
+
+      <option value="ICA Maxi Stormarknad">
+        ICA Maxi Stormarknad
+      </option>
+
+    </select>
+
+    <label>Delivery Address</label>
+
+    <input type="text" id="taddr">
+
+    <button onclick="Submit()">
+      Order Delivery
+    </button>
+
+    <div class="status-box">
+      <strong>Status:</strong>
+      <p id="response">Waiting for order...</p>
+    </div>
+
   </div>
-  <!--p>Current Position: </p> -->
-  <!--div id="txt"></div> -->
-  <div class="container">
-    <form action="javascript:Submit()">
-    <label for="faddr">Pickup location:</label><br>
-    <select id="faddr" name="faddr">
-      <option value="ICA Nära Söderlivs">ICA Nära Söderlivs</option>
-      <option value="ICA Malmborgs">ICA Malmborgs</option>
-      <option value="Coop Mårtenstorget">Coop Mårtenstorget</option>
-      <option value="ICA Maxi Stormarknad">ICA Maxi Stormarknad</option>
-      </select>
-      <br>
-      <label for="lname">To address:</label><br>
-      <input type="text" id="taddr" name="taddr"><br><br>
-      <input type="submit" value="Search addresses">
-    </form>
-    <object id="map" data="static/images/lund-map.svg" type="image/svg+xml" ></object>
 
-    <table id="droneTable">
-      <thead>
-        <tr>
-          <th>ID</th>
-          <th>Status</th>
-          <th>Coordinates</th>
-          <th>Battery</th>
-        </tr>
-      </thead>
-      <tbody>
-      </tbody>
-    </table>
-  </div>
-  <script>
-    var set_delay = 10,
-    callout = function () {
-    $.ajax({
-      url: 'http://127.0.0.1:5002/get_drones'
-    })
-    .done(function (server_response) {
-      var avalaible_drones = Object.keys(server_response)
-      for (const droneID of avalaible_drones){
-        var x = server_response[droneID].longitude
-        var y = server_response[droneID].latitude
-        var status = server_response[droneID].status
-        LoadDrone(droneID, x, y, status)
-      }
+  <!-- MAP -->
 
-      updateTable(server_response);
-    })
-    .always(function (server_response) {
-        setTimeout(callout, set_delay);
-    });
-    };
-    callout();    
-  </script>
+  <object
+    id="map"
+    data="static/images/lund-map.svg"
+    type="image/svg+xml">
+  </object>
 
+</div>
+
+<script>
+
+function Submit() {
+
+  const data = {
+
+    faddr: document.getElementById("faddr").value,
+
+    taddr: document.getElementById("taddr").value
+  };
+
+  fetch("http://127.0.0.1:5004/planner", {
+
+    method: "POST",
+
+    headers: {
+      "Content-Type": "application/json"
+    },
+
+    body: JSON.stringify(data)
+
+  })
+
+  .then(response => response.text())
+
+  .then(data => {
+
+    document.getElementById("response").innerHTML =
+      "Delivery order submitted successfully.";
+
+  })
+
+  .catch(error => {
+
+    document.getElementById("response").innerHTML =
+      "Error submitting order.";
+
+  });
+
+}
+
+</script>
+
+<script>
+
+function LoadDrone(droneID, x, y, status) {
+
+  var doc = document.getElementById("map");
+
+  $(doc).ready(function() {
+
+    var doc_svg = doc.getSVGDocument();
+
+    if (!doc_svg) return;
+
+    var svg = doc_svg.getElementById("map-svg");
+
+    if (!svg) return;
+
+    var circleNode = svg.getElementById(droneID);
+
+    var color = "red";
+
+    if (status == "idle") {
+      color = "green";
+    }
+
+    else if (status == "picking_up") {
+      color = "orange";
+    }
+
+    else if (status == "delivers") {
+      color = "blue";
+    }
+
+    if (circleNode == null) {
+
+      circleNode =
+        doc_svg.createElementNS(
+          "http://www.w3.org/2000/svg",
+          "circle"
+        );
+
+      circleNode.setAttributeNS(null, "cx", x);
+      circleNode.setAttributeNS(null, "cy", y);
+
+      circleNode.setAttributeNS(null, "r", "6");
+
+      circleNode.setAttributeNS(null, "fill", color);
+
+      circleNode.setAttributeNS(null, "id", droneID);
+
+      svg.appendChild(circleNode);
+
+    }
+
+    else {
+
+      circleNode.setAttributeNS(null, "cx", x);
+
+      circleNode.setAttributeNS(null, "cy", y);
+
+      circleNode.setAttributeNS(null, "fill", color);
+    }
+
+  });
+
+}
+
+</script>
+
+<script>
+
+var set_delay = 1000;
+
+var callout = function () {
+
+  $.ajax({
+
+    url: 'http://127.0.0.1:5002/get_drones'
+
+  })
+
+  .done(function(server_response) {
+
+    var available_drones =
+      Object.keys(server_response);
+
+    for (const droneID of available_drones) {
+
+      var x =
+        server_response[droneID].longitude;
+
+      var y =
+        server_response[droneID].latitude;
+
+      var status =
+        server_response[droneID].status;
+
+      LoadDrone(droneID, x, y, status);
+    }
+
+  })
+
+  .always(function() {
+
+    setTimeout(callout, set_delay);
+
+  });
+
+};
+
+callout();
+
+</script>
 
 </body>
 </html>

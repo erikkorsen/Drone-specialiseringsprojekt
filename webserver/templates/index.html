@@ -7,34 +7,44 @@
   <style>
     body {
       margin: 0;
-      padding: 10px;
+      padding: 0;
       font-family: Arial, sans-serif;
+      overflow-x: hidden;
+    }
+    .header {
+      width: 100%;
+      padding: 15px 20px;
+      background-color: #111;
+      color: white;
+      box-sizing: border-box;
     }
     .container {
-      display: flex;
-      align-items: flex-start;
-      gap: 0px;
-      justify-content: flex-start;
+      display: grid;
+      grid-template-columns: 160px 1fr 280px;
+      align-items: start;
+      gap: 15px;
+      padding: 40px 20px;
+      box-sizing: border-box;
+      width: 100vw;
     }
 
     #map {
-      width: 1000px;
-      height: 750px;
+      width: 100%;
+      max-height: calc(100vh - 100px);
+      aspect-ratio: 4 / 3;
       display: block;
-      margin-top: 0px;
     }
 
     #droneTable {
-      width: 330px;
+      width: 100%;
       font-size: 14px;
       border-collapse: collapse;
-      margin-top: 100px;
+      margin-top: 0;
     }
 
     table {
       border-collapse: collapse;
-      min-width: 300px;
-      margin-top: 100px;
+      margin-top: 0;
     }
 
     th, td {
@@ -42,13 +52,6 @@
       padding: 3px 6px;
       text-align: left;
     }
-    .header {
-      width: 100%;
-      padding: 15px 20px;
-      background-color: #111;
-      color: white;
-    }
-
     .header h1 {
       margin: 0;
       font-size: 28px;
@@ -151,7 +154,7 @@
   <!--p>Current Position: </p> -->
   <!--div id="txt"></div> -->
   <div class="container">
-    <form action="javascript:Submit()" style="margin-top: 80px;">
+    <form action="javascript:Submit()">
     <label for="faddr">Pickup location:</label><br>
     <select id="faddr" name="faddr">
       <option value="ICA Nära Söderlivs">ICA Nära Söderlivs</option>

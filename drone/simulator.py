@@ -41,7 +41,7 @@ def run(id, current_coords, from_coords, to_coords, home_coords, SERVER_URL, dro
     session = requests.Session()
 
     def drain_battery():
-        drone.battery -= 0.025
+        drone.battery -= 0.07
         if drone.battery < 0:
             drone.battery = 0
 
@@ -66,7 +66,7 @@ def run(id, current_coords, from_coords, to_coords, home_coords, SERVER_URL, dro
                   'battery': drone.battery
                 }
     session.post(SERVER_URL, json=drone_info)
-    time.sleep(3) # upphämtningsprocess - delay
+    time.sleep(6) # upphämtningsprocess - delay
     print(f"{id} picked up package, delivery {to_coords[0], to_coords[1]}")
     while ((to_coords[0] - drone_coords[0])**2 + (to_coords[1] - drone_coords[1])**2)*10**6 > 0.0002:
         d_long, d_la = getMovement(drone_coords, to_coords)

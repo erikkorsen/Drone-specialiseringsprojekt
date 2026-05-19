@@ -75,6 +75,16 @@
       border-radius: 5px;
     }
 
+    #response {
+      max-height: 200px;
+      overflow-y: auto;
+      margin-top: 8px;
+    }
+
+    #response p {
+      margin: 12px 0;
+    }
+
   </style>
 </head>
 
@@ -124,7 +134,7 @@
 
     <div class="status-box">
       <strong>Status:</strong>
-      <p id="response">Waiting for order...</p>
+      <div id="response">Waiting for order...</div>
     </div>
 
   </div>
@@ -162,20 +172,26 @@ function Submit() {
 
   })
 
-  .then(response => response.text())
-
+  .then(response => response.json())
   .then(data => {
-
-    document.getElementById("response").innerHTML =
-      "Delivery order submitted successfully.";
-
+    if (data.drone_id) {
+      FADDR = document.getElementById("faddr").value;
+      TADDR = document.getElementById("taddr").value;
+      MY_DRONE_ID = data.drone_id;
+      MISSION_STARTED = false;
+      DELIVERY_REACHED = false;
+      LAST_STATUS = null;
+      addMessage("Found an available drone.");
+      setTimeout(function () {
+        addMessage("Drone is on its way to pick up location: " + FADDR);
+      }, 2000);
+    } else {
+      addMessage(data.message || "No drone available, please try again later.");
+    }
   })
 
   .catch(error => {
-
-    document.getElementById("response").innerHTML =
-      "Error submitting order.";
-
+    addMessage("Error submitting order.");
   });
 
 }
@@ -225,7 +241,7 @@ function LoadDrone(droneID, x, y, status) {
       circleNode.setAttributeNS(null, "cx", x);
       circleNode.setAttributeNS(null, "cy", y);
 
-      circleNode.setAttributeNS(null, "r", "6");
+      circleNode.setAttributeNS(null, "r", "7");
 
       circleNode.setAttributeNS(null, "fill", color);
 
@@ -254,6 +270,38 @@ function LoadDrone(droneID, x, y, status) {
 
 var set_delay = 10;
 
+var MY_DRONE_ID = null;
+var MISSION_STARTED = false;
+var DELIVERY_REACHED = false;
+var LAST_STATUS = null;
+var FADDR = "";
+var TADDR = "";
+var MESSAGES_STARTED = false;
+
+
+function removeDrone(droneID) {
+  var doc = document.getElementById("map");
+  var doc_svg = doc.getSVGDocument();
+  if (!doc_svg) return;
+  var svg = doc_svg.getElementById("map-svg");
+  if (!svg) return;
+  var node = svg.getElementById(droneID);
+  if (node) node.parentNode.removeChild(node);
+}
+
+function addMessage(text) {
+  var box = document.getElementById("response");
+  if (!MESSAGES_STARTED) {
+    box.innerHTML = "";
+    MESSAGES_STARTED = true;
+
+  }
+  var p = document.createElement("p");
+  p.textContent = text;
+  box.appendChild(p);
+  box.scrollTop = box.scrollHeight;
+}
+
 var callout = function () {
 
   $.ajax({
@@ -262,25 +310,55 @@ var callout = function () {
 
   })
 
-  .done(function(server_response) {
+.done(function(server_response) {
+    if (!MY_DRONE_ID) return;
+    var drone = server_response[MY_DRONE_ID];
+    if (!drone) return;
 
-    var available_drones =
-      Object.keys(server_response);
-
-    for (const droneID of available_drones) {
-
-      var x =
-        server_response[droneID].longitude;
-
-      var y =
-        server_response[droneID].latitude;
-
-      var status =
-        server_response[droneID].status;
-
-      LoadDrone(droneID, x, y, status);
+    if (DELIVERY_REACHED && drone.status !== "delivers") {
+      MESSAGES_STARTED = false;         
+      addMessage("Delivery complete.");
+      addMessage("Thank you for using LastMile!");
+      removeDrone(MY_DRONE_ID);
+      MY_DRONE_ID = null;
+      MISSION_STARTED = false;
+      DELIVERY_REACHED = false;
+      LAST_STATUS = null;
+      return;
     }
 
+    if (drone.status === "idle") {
+      if (MISSION_STARTED) {
+        removeDrone(MY_DRONE_ID);
+        MY_DRONE_ID = null;
+        MISSION_STARTED = false;
+        DELIVERY_REACHED = false;
+        LAST_STATUS = null;
+      }
+      return;
+    }
+
+    MISSION_STARTED = true;
+
+    if (drone.status !== LAST_STATUS) {
+      if (drone.status === "picking_up") {
+        addMessage("Drone is picking up your package...");
+
+      } else if (drone.status === "busy" && LAST_STATUS === "picking_up") {
+        addMessage("Your package was picked up successfully.");
+        setTimeout(function () {
+          addMessage("Drone is on its way to the delivery address: " + TADDR);
+        }, 2000);
+
+      } else if (drone.status === "delivers") {
+        addMessage("Drone has arrived. Please scan the QR code within 15 seconds.");
+
+        DELIVERY_REACHED = true;
+      }
+      LAST_STATUS = drone.status;
+    }
+
+    LoadDrone(MY_DRONE_ID, drone.longitude, drone.latitude, drone.status);
   })
 
   .always(function() {

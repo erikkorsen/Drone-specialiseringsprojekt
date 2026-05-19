@@ -29,6 +29,7 @@ def route_planner():
     ToAddress = Addresses['taddr']
     from_location = geolocator.geocode(FromAddress + region, timeout=None)
     to_location = geolocator.geocode(ToAddress + region, timeout=None)
+    drone_id = None
     if from_location is None:
         message = 'Departure address not found, please input a correct address'
         return message
@@ -62,9 +63,13 @@ def route_planner():
 
                 if response.ok:
                     message = 'Got address and sent request to the drone'
+                    try:
+                        drone_id = response.json().get("drone_id")
+                    except Exception:
+                        pass
                 else:
                     message = 'Drone manager could not accept the request'
-    return message
+    return jsonify({"message": message, "drone_id": drone_id})
         # ======================================================================
 
 

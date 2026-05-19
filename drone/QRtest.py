@@ -13,7 +13,7 @@ def scanQR():
     startTime = time.time()
     currentTime = time.time()
 
-    while currentTime - startTime < 30:
+    while currentTime - startTime < 15:
 
         currentTime = time.time()
 

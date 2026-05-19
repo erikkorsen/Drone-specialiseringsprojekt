@@ -188,7 +188,7 @@ def start_demo():
         )
         thread.start()
 
-        time.sleep(2)
+        time.sleep(4)
     
 
 

@@ -36,9 +36,7 @@ def drone():
     
     #indexera över drönar-IDn så vi kan lista alla drönare
     redis_server.sadd("drones", droneID)
-    
-    print(drone_longitude)
-    
+
     return 'Get data'
 
 if __name__ == "__main__":

@@ -75,10 +75,6 @@ def get_drones():
             "status": drone_data.get("status", "unknown"),
             'battery': float(drone_data.get('battery', 100))
         }
-
-    
-    for key in redis_server.scan_iter(match=""):
-        key_type = redis_server.type(key) #används detta?
     
     return jsonify(drone_dict)
 

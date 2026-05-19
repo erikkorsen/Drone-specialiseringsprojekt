@@ -14,7 +14,7 @@ app.secret_key = 'dljsaklqk24e21cjn!Ew@@dsa5'
 redis_server = redis.Redis(host="localhost", port=6379, decode_responses=True)
 # ===============================================
 
-geolocator = Nominatim(user_agent="my_request")
+geolocator = Nominatim(user_agent="lastmile")
 region = ", Lund, Skåne, Sweden"
 
 

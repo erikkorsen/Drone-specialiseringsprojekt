@@ -316,9 +316,13 @@ var callout = function () {
     if (!drone) return;
 
     if (DELIVERY_REACHED && drone.status !== "delivers") {
-      MESSAGES_STARTED = false;         
-      addMessage("Delivery complete.");
-      addMessage("Thank you for using LastMile!");
+      MESSAGES_STARTED = false;
+      if (drone.status === "delivery_failed") {
+        addMessage("Time is out. Your package is being returned.");
+      } else {
+        addMessage("Delivery complete.");
+        addMessage("Thank you for using LastMile!");
+      }
       removeDrone(MY_DRONE_ID);
       MY_DRONE_ID = null;
       MISSION_STARTED = false;

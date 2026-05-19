@@ -100,6 +100,9 @@ def run(id, current_coords, from_coords, to_coords, home_coords, SERVER_URL, dro
             print(f"{id} delivered package")
         else:
             print(f"{id} QR scan failed")
+
+        return_status = "busy" if QRtest.scanQR() else "delivery_failed"
+
         time.sleep(3)
     print(f"{id} returning home")
 
@@ -112,7 +115,7 @@ def run(id, current_coords, from_coords, to_coords, home_coords, SERVER_URL, dro
         drone_info = {'id': id,
                       'longitude': drone_coords[0],
                       'latitude': drone_coords[1],
-                      'status': 'busy',
+                      'status': return_status,
                       'battery': drone.battery
                     }
         session.post(SERVER_URL, json=drone_info)

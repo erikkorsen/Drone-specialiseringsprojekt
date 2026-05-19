@@ -2,6 +2,9 @@ import math
 import requests
 import time
 import QRtest
+import threading
+
+qr_lock = threading.Lock()
 
 delay = 0.05
 
@@ -89,10 +92,12 @@ def run(id, current_coords, from_coords, to_coords, home_coords, SERVER_URL, dro
     
     session.post(SERVER_URL, json=drone_info)
 
-    if QRtest.scanQR():
-        print("Scan ok")
-    else:
-        print("Scan failed")
+    with qr_lock:
+        if QRtest.scanQR():
+            print("Scan ok")
+        else:
+            print("Scan failed")
+        time.sleep(3)
 
     while ((home_coords[0] - drone_coords[0])**2 + (home_coords[1] - drone_coords[1])**2)*10**6 > 0.0002:
         d_long, d_la = getMovement(drone_coords, home_coords)

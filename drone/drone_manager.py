@@ -112,7 +112,7 @@ def get_nearest_home(to_coords):
     return nearest_home
 
 
-def run_mission(drone, from_coords, to_coords):
+def run_mission(drone, from_coords, to_coords, demo=False):
     current_coords = (drone.longitude, drone.latitude)
     home_coords = get_nearest_home(to_coords)
 
@@ -123,7 +123,8 @@ def run_mission(drone, from_coords, to_coords):
         tuple(to_coords),
         home_coords,
         SERVER,
-        drone 
+        drone,
+        demo
     )
 
     drone.complete_mission(final_longitude, final_latitude)
@@ -183,7 +184,7 @@ def start_demo():
 
         thread = threading.Thread(
             target = run_mission,
-            args = (drone, from_coords, to_coords),
+            args = (drone, from_coords, to_coords, True),
             daemon = True,
         )
         thread.start()

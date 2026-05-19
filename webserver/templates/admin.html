@@ -97,6 +97,39 @@
   </script>
   <script type="text/javascript">
 
+const HOME_COORDS = [
+  [654, 382],
+  [463, 290],
+  [535, 559],
+];
+
+const HOME_RADIUS = 16;
+
+function LoadHomes() {
+  var doc = document.getElementById("map");
+  $(doc).ready(function () {
+    var doc_svg = doc.getSVGDocument();
+    if (!doc_svg) return;
+    var svg = doc_svg.getElementById("map-svg");
+    if (!svg) return;
+
+    HOME_COORDS.forEach(function (coords, index) {
+      var homeID = "home_" + (index + 1);
+      if (svg.getElementById(homeID) != null) return;
+
+      var pad = doc_svg.createElementNS("http://www.w3.org/2000/svg", "circle");
+      pad.setAttributeNS(null, 'cx', coords[0]);
+      pad.setAttributeNS(null, 'cy', coords[1]);
+      pad.setAttributeNS(null, 'r', HOME_RADIUS);
+      pad.setAttributeNS(null, 'fill', 'black');
+      pad.setAttributeNS(null, 'stroke', 'green');
+      pad.setAttributeNS(null, 'stroke-width', '2');
+      pad.setAttributeNS(null, 'id', homeID);
+      svg.appendChild(pad);
+    });
+  });
+}
+
     function LoadDrone(droneID, x, y, status) {
       var doc = document.getElementById("map");
       $( doc ).ready(function() {
@@ -225,6 +258,7 @@
       url: 'http://127.0.0.1:5002/get_drones'
     })
     .done(function (server_response) {
+      LoadHomes();
       var avalaible_drones = Object.keys(server_response)
       for (const droneID of avalaible_drones){
         var x = server_response[droneID].longitude

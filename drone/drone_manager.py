@@ -190,7 +190,6 @@ def start_demo():
 
         time.sleep(2)
     
-    return {"message": "Demo started"}, 200
 
 
 if __name__ == "__main__":

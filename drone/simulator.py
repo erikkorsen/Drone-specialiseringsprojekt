@@ -3,6 +3,8 @@ import requests
 import time
 import QRtest
 
+delay = 0.05
+
 def getMovement(src, dst):
     speed = 0.00008
     dst_x, dst_y = dst
@@ -51,7 +53,7 @@ def run(id, current_coords, from_coords, to_coords, home_coords, SERVER_URL, dro
                       'battery': drone.battery
                     }
         session.post(SERVER_URL, json=drone_info)
-        time.sleep(0.02)
+        time.sleep(delay)
 
     drone_info = {'id': id,
                   'longitude': drone_coords[0],
@@ -75,7 +77,7 @@ def run(id, current_coords, from_coords, to_coords, home_coords, SERVER_URL, dro
                       'battery': drone.battery
                     }
         session.post(SERVER_URL, json=drone_info)
-        time.sleep(0.02)
+        time.sleep(delay)
 
 
     drone_info = {'id': id,
@@ -105,7 +107,7 @@ def run(id, current_coords, from_coords, to_coords, home_coords, SERVER_URL, dro
                       'battery': drone.battery
                     }
         session.post(SERVER_URL, json=drone_info)
-        time.sleep(0.02)
+        time.sleep(delay)
 
     drone_info = {'id': id,
                   'longitude': drone_coords[0],

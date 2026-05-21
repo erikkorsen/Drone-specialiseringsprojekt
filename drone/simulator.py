@@ -34,7 +34,7 @@ def getDistance(a, b):
     return math.sqrt((b[0] - a[0])**2 + (b[1] - a[1])**2)
 
 
-def run(id, current_coords, from_coords, to_coords, home_coords, SERVER_URL, drone):
+def run(id, current_coords, from_coords, to_coords, home_coords, SERVER_URL, drone, demo=False):
     print(f"{id} on route to pick up from {from_coords[0]}, {from_coords[1]}")
 
     drone_coords = current_coords
@@ -93,18 +93,27 @@ def run(id, current_coords, from_coords, to_coords, home_coords, SERVER_URL, dro
     
     session.post(SERVER_URL, json=drone_info)
 
-    with qr_lock:
-        print(f"{id} waiting for QR scan")
-        if QRtest.scanQR():
-            print(f"{id} QR scan succesfull")
-            print(f"{id} delivered package")
-        else:
-            print(f"{id} QR scan failed")
+    if demo:
 
-        return_status = "busy" if QRtest.scanQR() else "delivery_failed"
+        print(f"{id} fake QR scan")
+        time.sleep(7)
+        return_status= "busy"
+        print(f"{id} delivered package")
 
-        time.sleep(3)
-    print(f"{id} returning home")
+    else:
+
+        with qr_lock:
+            print(f"{id} waiting for QR scan")
+            if QRtest.scanQR():
+                print(f"{id} QR scan succesfull")
+                print(f"{id} delivered package")
+            else:
+                print(f"{id} QR scan failed")
+
+            return_status = "busy" if QRtest.scanQR() else "delivery_failed"
+
+            time.sleep(3)
+        print(f"{id} returning home")
 
     while ((home_coords[0] - drone_coords[0])**2 + (home_coords[1] - drone_coords[1])**2)*10**6 > 0.0002:
         d_long, d_la = getMovement(drone_coords, home_coords)

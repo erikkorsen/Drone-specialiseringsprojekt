@@ -69,7 +69,7 @@ def has_required_battery(drone, from_coords, to_coords):
 
     total_dist = dist_pickup + dist_delivery + dist_home
 
-    battery_usage = total_dist * 312.5
+    battery_usage = total_dist * 875
 
     return drone.battery >= battery_usage
     
